@@ -1,0 +1,1 @@
+FRAMEBUFFER=/dev/fb1 sudo python3 main.py 

@@ -12,9 +12,6 @@ from threading import Thread
 # modules
 import importlib 
 
-#import xfClock.moduleClock
-#import xfClock.moduleGesture
-#import xfClock.moduleScreen
 
 class Clock:
     def __init__(self):
@@ -40,7 +37,13 @@ class Clock:
     def screen(self):
         return self._screen
 
+    @property 
+    def config(self):
+        return self._config
 
+    @config.setter
+    def config(self, value):
+        self._config = value
     #
     #   Application lifecycle
     #
@@ -54,9 +57,10 @@ class Clock:
         self.bgColor = (0,0,0)
 
         ## TODO: Add modules from config
-        modules = ["Clock", "Gesture", "Screen"]
-        for mod in modules:
-            m = importlib.import_module("xfClock.modules." + mod)
+        modules = self.config.modules
+        for modItem in modules:
+            mod = modItem["name"]
+            m = importlib.import_module("xfClock.modules." + mod + "." + mod)
             modClass = getattr(m, mod)
             modObj = modClass()
             self.modules.append(modObj)

@@ -2,7 +2,9 @@
 #   START MAIN
 #
 import os
+import config
 import xfClock.ClockApp
+
 
 if __name__ == "__main__" :
     # Set up framebuffer env
@@ -12,4 +14,5 @@ if __name__ == "__main__" :
 
     # Start the app
     theApp = xfClock.ClockApp.Clock()
+    theApp.config = config.Config
     theApp.execute()    

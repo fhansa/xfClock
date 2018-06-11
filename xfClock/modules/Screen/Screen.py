@@ -26,7 +26,7 @@ def screenConnect(client, userdata, message, rc):
 def screenDisconnect(client, userdata, message):
     client.loop_stop()
 
-class moduleScreen(xfClock.module.moduleBase):
+class Screen(xfClock.module.moduleBase):
 
     def on_init(self, app):
         # Start mqtt subscribe

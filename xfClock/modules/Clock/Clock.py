@@ -2,19 +2,24 @@
 #   Clock module
 #
 import xfClock.module
+import os
 from math import *
 import datetime
 
 # TODO: Remove reference
 import pygame
 
-class moduleClock(xfClock.module.moduleBase):
+
+class Clock(xfClock.module.moduleBase):
     def __init__(self):
+        self.path = os.path.dirname(__file__)
         pass
 
     def on_init(self, app):
         ## Load Clockbg
-        self.clockbg = pygame.image.load("clw.png").convert_alpha()   
+        print(self.path)
+        imgPath = os.path.join(self.path, "images/clw.png")
+        self.clockbg = pygame.image.load(imgPath).convert_alpha()   
         self.clockWidth = self.clockbg.get_size()[0]
         self.clockHeight = self.clockbg.get_size()[1]
         self.clockLeft = (app.width - self.clockWidth) / 2

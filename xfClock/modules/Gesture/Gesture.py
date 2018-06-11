@@ -12,7 +12,7 @@ import paho.mqtt.publish as mqttPublish
 import paho.mqtt.client as mqttClient
 from time import sleep
 
-class moduleGesture(xfClock.module.moduleBase):
+class Gesture(xfClock.module.moduleBase):
     def __init__(self):
         #self.lastShowed
         pass
