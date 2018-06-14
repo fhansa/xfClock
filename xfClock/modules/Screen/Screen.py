@@ -13,9 +13,9 @@ def on_message_print(client, userdata, message):
 def screenMessage(client, userdata, message):
     msg = message.payload.decode("UTF-8")
     if msg == "off":
-        exec("sudo sh -c 'echo ""0"" > /sys/class/backlight/soc\:backlight/brightness'")
+        exec("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
     elif msg == "on":
-        exec("sudo sh -c 'echo ""1"" > /sys/class/backlight/soc\:backlight/brightness'")
+        exec("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
     else:
         print(message.payload)
 
