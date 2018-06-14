@@ -21,15 +21,28 @@ def screenMessage(client, userdata, message):
         print(message.payload)
 
 def screenConnect(client, userdata, message, rc):
-    print("Connect")
-    client.subscribe("home/clock/screen")
+    if rc == 0:
+        print("Connected ok")
+        client.subscribe("home/clock/screen")
+    else:
+        print("Connect failes")
+        print(message)
 
-def screenDisconnect(client, userdata, message):
+def screenDisconnect(client, userdata, message, rc):
+    if rc != 0:
+        print("unexpected disconnect, trying to reconnect in 30 seconds")
+    else:
+        print("Dicsonnected")
     client.loop_stop()
 
 class Screen(xfClock.module.moduleBase):
 
     def on_init(self, app):
+        #   Config settings
+        self.payload_on = "on"
+        self.payload_off = "off"
+
+
         # Start mqtt subscribe
         self.client = mqttClient.Client()
         self.client.on_connect = screenConnect
@@ -44,5 +57,28 @@ class Screen(xfClock.module.moduleBase):
         self.client.connect(host, port, 60)
         self.client.loop_start()  
 
-    def on_message_print(self, client, userdata, message):
-        print("%s %s" % (message.topic, message.payload))
+    ## MQTT Callbacks
+    def screenMessage(self, client, userdata, message):
+        ## 
+        msg = message.payload.decode("UTF-8")
+        if msg == self.payload_off:
+            os.system("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
+        elif msg == self.payload_off:
+            os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
+        else:
+            print(message.payload)
+
+    def screenConnect(self, client, userdata, message, rc):
+        if rc == 0:
+            print("Connected ok")
+            client.subscribe("home/clock/screen")
+        else:
+            print("Connect failes")
+            print(message)
+
+    def screenDisconnect(self, client, userdata, message, rc):
+        if rc != 0:
+            print("unexpected disconnect, trying to reconnect in 30 seconds")
+        else:
+            print("Dicsonnected")
+        client.loop_stop()

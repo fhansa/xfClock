@@ -7,9 +7,15 @@ class Config:
     modules = [
         {
             "name" : "Clock"
+            "config": {
+                
+            }
         },
         {
             "name" : "Gesture"
+            "config": {
+
+            }
         },
         {
             "name" : "Screen",

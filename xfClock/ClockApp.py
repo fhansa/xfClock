@@ -1,6 +1,9 @@
 #
 #   xfClock is the application for xfClock
 #
+#
+##  TODO: Add better logging
+##
 import os
 import datetime
 import pygame
@@ -51,30 +54,38 @@ class Clock:
 
     ## on_init - called once when initialization is done
     def on_init(self):
+
+        ## SETUP Screen, full screen and no mouse
+        ## TODO: customizeable background??
         pygame.init()
         self.size = self._width, self._height = pygame.display.Info().current_w, pygame.display.Info().current_h 
         self._screen = pygame.display.set_mode( self.size, pygame.FULLSCREEN )
         pygame.mouse.set_visible(0)
         self.bgColor = (0,0,0)
 
-        ## TODO: Add modules from config
+        ## Add modules from config
         modules = self.config.modules
         for modItem in modules:
-            mod = modItem["name"]
-            m = importlib.import_module("xfClock.modules." + mod + "." + mod)
-            modClass = getattr(m, mod)
-            modObj = modClass()
-            if "config" in modItem:
-                modObj.config = modItem["config"]
-            self.modules.append(modObj)
+            try:
+                mod = modItem["name"]
+                m = importlib.import_module("xfClock.modules." + mod + "." + mod)
+                modClass = getattr(m, mod)
+                modObj = modClass()
+                if "config" in modItem:
+                    modObj.config = modItem["config"]
+                self.modules.append(modObj)
+            except, e:
+                print("Error when creating module {}. Error: {}".format(mod), str(e))
+                print("This error does not halt xfClock. Only the affected module is not loaded")
 
-#        self.modules.append(moduleClock())
-#        self.modules.append(moduleGesture())
-#        self.modules.append(moduleScreen())
 
-        # Iterate and init all modules
+        ## Iterate and init all modules
         for mod in self.modules:
-            mod.on_init(self)
+            try:
+                mod.on_init(self)
+            except, e:
+                print("on_init failed for {}".format(mod.__class__.__name__))
+                print("Message: {}".format(str(e))
 
         self._running = True
  
