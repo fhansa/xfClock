@@ -16,10 +16,10 @@ import importlib
 class Clock:
     def __init__(self):
         self._running = True
-        self._display_surf = None
         self.modules = []
+        self._executedelay = 200        # ms delay in main loop. use to free upp processing time for threading 
     
-    #
+    # ----------------------------------------------------------------------
     #   Defined properties exposed from the application
     #   These properties can be used by modules
     #
@@ -44,7 +44,8 @@ class Clock:
     @config.setter
     def config(self, value):
         self._config = value
-    #
+
+    # ----------------------------------------------------------------------
     #   Application lifecycle
     #
 
@@ -63,6 +64,7 @@ class Clock:
             m = importlib.import_module("xfClock.modules." + mod + "." + mod)
             modClass = getattr(m, mod)
             modObj = modClass()
+            modObj.config = modItem["config"]
             self.modules.append(modObj)
 
 #        self.modules.append(moduleClock())
@@ -80,10 +82,12 @@ class Clock:
         if event.type == pygame.QUIT:
             self._running = False
 
+    ##
     ## on_loop - "game-loop" called pretty often
     def on_loop(self):
         pass
 
+    ##
     ## on_render - called when its time to draw  
     def on_render(self):
         ## BACKGROUND
@@ -93,13 +97,15 @@ class Clock:
         for mod in self.modules:
             mod.on_render(self)
 
-        ## FINISH
+        ## done
         pygame.display.flip()
 
+    ##
     ## on_cleanup - is called when the fun is over and its time to quit
     def on_cleanup(self):
         pygame.quit()
  
+    ##
     ## execute - main loop of the program
     def execute(self):
         try:

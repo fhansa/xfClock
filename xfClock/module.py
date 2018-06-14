@@ -12,3 +12,12 @@ class moduleBase:
         pass
     def on_message(self):
         pass
+
+    @property 
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self,value):
+        # TODO: merge default config and new config
+        self._config = value
