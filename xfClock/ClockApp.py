@@ -64,7 +64,8 @@ class Clock:
             m = importlib.import_module("xfClock.modules." + mod + "." + mod)
             modClass = getattr(m, mod)
             modObj = modClass()
-            modObj.config = modItem["config"]
+            if "config" in modItem:
+                modObj.config = modItem["config"]
             self.modules.append(modObj)
 
 #        self.modules.append(moduleClock())
