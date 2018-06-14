@@ -60,7 +60,7 @@ class Gesture(xfClock.module.moduleBase):
         apds = apds9960.device.APDS9960(bus)
 
         # Settings
-        apds.setProximityIntLowThreshold(50)
+        #apds.setProximityIntLowThreshold(50)
 
         # Enable Gesture
         apds.enableGestureSensor()
