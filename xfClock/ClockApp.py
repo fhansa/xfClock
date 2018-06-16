@@ -5,6 +5,7 @@
 ##  TODO: Add better logging
 ##
 import os
+import sys
 import datetime
 import pygame
 from pygame.locals import *
@@ -49,6 +50,36 @@ class Clock:
         self._config = value
 
     # ----------------------------------------------------------------------
+    #   Application methods
+    #
+
+    ## Create modules from config
+    def createModules(self):
+        ## Add modules from config
+        modules = self.config.modules
+        for modItem in modules:
+            try:
+                mod = modItem["name"]
+                m = importlib.import_module("xfClock.modules." + mod + "." + mod)
+                modClass = getattr(m, mod)
+                modObj = modClass()
+                if "config" in modItem:
+                    modObj.config = modItem["config"]
+                self.modules.append(modObj)
+            except:
+                print("Error when creating module {}. Error: {}".format(mod), sys.exc_info()[0])
+                print("This error does not halt xfClock. Only the affected module is not loaded")
+
+    def initializeModules(self):
+        ## Iterate and init all modules
+        for mod in self.modules:
+            try:
+                mod.on_init(self)
+            except:
+                print("on_init failed for {}".format(mod.__class__.__name__))
+                print("Message: {}".format(sys.exc_info()[0]))
+
+    # ----------------------------------------------------------------------
     #   Application lifecycle
     #
 
@@ -63,32 +94,13 @@ class Clock:
         pygame.mouse.set_visible(0)
         self.bgColor = (0,0,0)
 
-        ## Add modules from config
-        modules = self.config.modules
-        for modItem in modules:
-            try:
-                mod = modItem["name"]
-                m = importlib.import_module("xfClock.modules." + mod + "." + mod)
-                modClass = getattr(m, mod)
-                modObj = modClass()
-                if "config" in modItem:
-                    modObj.config = modItem["config"]
-                self.modules.append(modObj)
-            except, e:
-                print("Error when creating module {}. Error: {}".format(mod), str(e))
-                print("This error does not halt xfClock. Only the affected module is not loaded")
+        ## Handle modules
+        self.createModules()
+        self.initializeModules()
 
-
-        ## Iterate and init all modules
-        for mod in self.modules:
-            try:
-                mod.on_init(self)
-            except, e:
-                print("on_init failed for {}".format(mod.__class__.__name__))
-                print("Message: {}".format(str(e))
-
+        ## All is ok 
         self._running = True
- 
+
     ## on_event - called whenever an event occurs
     def on_event(self, event):
         if event.type == pygame.QUIT:

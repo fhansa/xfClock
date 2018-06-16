@@ -12,6 +12,7 @@ if __name__ == "__main__" :
     os.putenv('SDL_FBDEV','/dev/fb1')
     os.environ["SDL_FBDEV"] = '/dev/fb1'
 
+    print("*** STARTING xfClock ***")
     # Create the app
     theApp = xfClock.ClockApp.Clock()
 
