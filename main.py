@@ -8,9 +8,15 @@ import xfClock.ClockApp
 if __name__ == "__main__" :
     # Set up framebuffer display for pygame
     ##  - framebuffer for pitft (adafruit)
-    os.putenv('SDL_VIDEODRIVER', 'fbcon')
-    os.putenv('SDL_FBDEV','/dev/fb1')
-    os.environ["SDL_FBDEV"] = '/dev/fb1'
+
+    if config.Config.system["display"] == "simulated":
+        ## Use dsimulated dimensions
+        pass
+    else:
+        ## Framebuffer settings
+        os.putenv('SDL_VIDEODRIVER', 'fbcon')
+        os.putenv('SDL_FBDEV','/dev/fb1')
+        os.environ["SDL_FBDEV"] = '/dev/fb1'
 
     print("*** STARTING xfClock ***")
     # Create the app

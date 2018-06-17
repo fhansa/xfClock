@@ -1,4 +1,12 @@
 class Config:
+
+    system = {
+        "platform": "mac",       # PI
+        "display": "simulated",
+        "display_width": 480,
+        "display_height": 320,
+    }
+
     clock = {
         #
         "test":"test"

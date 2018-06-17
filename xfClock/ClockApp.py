@@ -25,6 +25,7 @@ class Clock:
         self._running = True
         self.modules = []
         self._executedelay = 200        # ms delay in main loop. use to free upp processing time for threading 
+        self._app_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
     
     # ----------------------------------------------------------------------
     #   Defined properties exposed from the application
@@ -65,14 +66,67 @@ class Clock:
     # ----------------------------------------------------------------------
     #   Application methods - internal methods
     #
-
+    ##  +---+---+---+
+    ##  | A | B | C |
+    ##  +---+---+---+
+    ##  | E | F | G |
+    ##  +---+---+---+
+    ##
+    ##  Available rects:
+    ##      top_left, top_middle, top_right, bottom_left, bottom_middle, bottom_right
+    ##      top_half (A+B+C=), bottom_half (E+F+G)
+    ##      full_screen
+    ##
+    ##      big_left (A+B+E+F), big_right (B+C+F+G)
+    ##
+    ##      col_left, col_middle, col_right (A+E, B+F, C+G)
+    ##
+    ##      top_row, bottom_row (A+B+C, E+F+G)
+    ##
     ## Create rect from position 
     def rectFromPosition(self, position):
-        rect = (0,0)
+        rect = ( (0,0), (0,0) ) ## (x,y), (w,h)
+
+        dimension = (0,0)
         if position == "full_screen":
-            rect = (self.width, self.height)
-        elif position in ("top_left", "top_right", "top_middle", "bottom_left", "bottom_right", "bottom_middle"::
-            rect = (self.width / 3, self.height / 2)
+            dimension = (self.width, self.height)
+        elif position in ("top_left", "top_right", "top_middle", "bottom_left", "bottom_right", "bottom_middle"):
+            dimension = (int(self.width / 3), int(self.height / 2))
+        elif position in ("col_left", "col_right", "col_middle"):
+            dimension =  (int(self.width / 3), int(self.height))
+        elif position in ("big_left", "big_right"):
+            dimension = (int(self.width / 3 * 2), int(self.height))
+        elif dimension in ("top_row", "bottom_row"):
+            dimension = (int(self.width), int(self.height / 2))
+
+        x = 0
+        y = 0
+        if position == "full_screen":
+            x, y = (0,0)
+        else:
+            ypos, xpos = position.split("_")
+            if ypos == "top" or ypos == "col" or ypos == "big":
+                y = 0
+            elif ypos == "bottom":
+                y = int(self.height / 2)
+            else:
+                y = 0
+
+            if ypos == "big":
+                if xpos == "left":
+                    x = 0
+                else:
+                    x = int(self.width/3)
+            elif xpos == "left" or xpos == "row":
+                x = 0
+            elif xpos == "middle":
+                x = int(self.width / 3) * 1
+            elif xpos == "right":
+                x = int(self.width / 3 * 2)
+            else:   
+                x = 0
+
+        rect = ( (x,y), dimension )
         return rect
 
     ## Create modules from config
@@ -85,6 +139,7 @@ class Clock:
                 m = importlib.import_module("xfClock.modules." + mod + "." + mod)
                 modClass = getattr(m, mod)
                 modObj = modClass()
+                modObj.modulePath = os.path.join(self._app_dir, "modules", mod)
                 if "config" in modItem:
                     modObj.config = modItem["config"]
                 if "position" in modItem:
@@ -92,8 +147,8 @@ class Clock:
                 else:
                     modObj.rect = (0,0)
                 self.modules.append(modObj)
-            except:
-                print("Error when creating module {}. Error: {}".format(mod), sys.exc_info()[0])
+            except Exception as e:
+                print("Error when creating module. Error:{}".format(e))
                 print("This error does not halt xfClock. Only the affected module is not loaded")
 
     def initializeModules(self):
@@ -101,9 +156,9 @@ class Clock:
         for mod in self.modules:
             try:
                 mod.on_init(self)
-            except:
+            except Exception as e:
                 print("on_init failed for {}".format(mod.__class__.__name__))
-                print("Message: {}".format(sys.exc_info()[0]))
+                print("Message: {}".format(e))
 
     # ----------------------------------------------------------------------
     #   Application lifecycle
@@ -115,8 +170,15 @@ class Clock:
         ## SETUP Screen, full screen and no mouse
         ## TODO: customizeable background??
         pygame.init()
-        self.size = self._width, self._height = pygame.display.Info().current_w, pygame.display.Info().current_h 
-        self._screen = pygame.display.set_mode( self.size, pygame.FULLSCREEN )
+        if self.config.system["display"] == "simulated":
+            self.size = self._width, self._height = self.config.system["display_width"],self.config.system["display_height"]
+            displayOptions = pygame.RESIZABLE
+        else:
+            ## Set size to whole screen
+            self.size = self._width, self._height = pygame.display.Info().current_w, pygame.display.Info().current_h 
+            displayOptions = pygame.FULLSCREEN
+
+        self._screen = pygame.display.set_mode( self.size, displayOptions )
         pygame.mouse.set_visible(0)
         self.bgColor = (0,0,0)
         
@@ -137,21 +199,13 @@ class Clock:
     ##
     ## on_loop - "game-loop" called pretty often
     def on_loop(self):
-        pass
+        ## Modules
+        for mod in self.modules:
+            mod.on_loop(self)
 
     ##
     ## on_render - called when its time to draw  
     ##
-    ##  +---+---+---+
-    ##  | A | B | C |
-    ##  +---+---+---+
-    ##  | E | F | G |
-    ##  +---+---+---+
-    ##
-    ##  Available rects:
-    ##      top_left, top_middle, top_right, bottom_left, bottom_middle, bottom_right
-    ##      top_half (A+B+C=), bottom_half (E+F+G)
-    ##      full_screen
     ##
     def on_render(self):
         ## BACKGROUND
@@ -159,7 +213,10 @@ class Clock:
 
         ## Modules
         for mod in self.modules:
-            mod.on_render(self)
+            ## Create surafce to use 
+            surface = pygame.Surface(mod.size, pygame.SRCALPHA)
+            mod.on_render(self, surface)
+            self.screen.blit(surface, mod.position)
 
         ## done
         pygame.display.flip()
