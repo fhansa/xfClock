@@ -6,19 +6,22 @@ class Config:
 
     modules = [
         {
-            "name" : "Clock"
+            "name" : "Clock",
+            "position":"full_screen",
             "config": {
                 
             }
         },
         {
-            "name" : "Gesture"
+            "name" : "Gesture",
+            "position":"hidden",
             "config": {
 
             }
         },
         {
             "name" : "Screen",
+            "position":"hidden",
             "config" : {
                 "mqtthost":"xxx",
                 "mqttport":1883,

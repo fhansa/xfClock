@@ -16,7 +16,10 @@ from threading import Thread
 # modules
 import importlib 
 
-
+#
+#   Clock is the main App-CLass
+#
+#
 class Clock:
     def __init__(self):
         self._running = True
@@ -50,8 +53,27 @@ class Clock:
         self._config = value
 
     # ----------------------------------------------------------------------
-    #   Application methods
+    #   Published methodsfrom the application
+    #   These can be used by modules
     #
+    def hideModule(self, module):
+        pass
+    def showModule(self, module):
+        pass
+
+
+    # ----------------------------------------------------------------------
+    #   Application methods - internal methods
+    #
+
+    ## Create rect from position 
+    def rectFromPosition(self, position):
+        rect = (0,0)
+        if position == "full_screen":
+            rect = (self.width, self.height)
+        elif position in ("top_left", "top_right", "top_middle", "bottom_left", "bottom_right", "bottom_middle"::
+            rect = (self.width / 3, self.height / 2)
+        return rect
 
     ## Create modules from config
     def createModules(self):
@@ -65,6 +87,10 @@ class Clock:
                 modObj = modClass()
                 if "config" in modItem:
                     modObj.config = modItem["config"]
+                if "position" in modItem:
+                    modObj.rect = self.rectFromPosition(modItem["position"])
+                else:
+                    modObj.rect = (0,0)
                 self.modules.append(modObj)
             except:
                 print("Error when creating module {}. Error: {}".format(mod), sys.exc_info()[0])
@@ -93,6 +119,8 @@ class Clock:
         self._screen = pygame.display.set_mode( self.size, pygame.FULLSCREEN )
         pygame.mouse.set_visible(0)
         self.bgColor = (0,0,0)
+        
+        ## Create rects in screen
 
         ## Handle modules
         self.createModules()
@@ -113,6 +141,18 @@ class Clock:
 
     ##
     ## on_render - called when its time to draw  
+    ##
+    ##  +---+---+---+
+    ##  | A | B | C |
+    ##  +---+---+---+
+    ##  | E | F | G |
+    ##  +---+---+---+
+    ##
+    ##  Available rects:
+    ##      top_left, top_middle, top_right, bottom_left, bottom_middle, bottom_right
+    ##      top_half (A+B+C=), bottom_half (E+F+G)
+    ##      full_screen
+    ##
     def on_render(self):
         ## BACKGROUND
         self.screen.fill( self.bgColor )
