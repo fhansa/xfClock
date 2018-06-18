@@ -6,19 +6,24 @@ class moduleBase:
     ##
     ##  Lifecycle
     ##
-    def __init__(self):
+    def __init__(self, app):
         self._width = 0
         self._height = 0
         self.modulePath = ""
         self._config = {}
+
+        # Reference to main app
+        self.app = app
         pass    
-    def on_init(self, app):
+    def on_init(self):
         pass   
-    def on_render(self, app, surface):
+    def on_render(self, surface):
         pass
-    def on_loop(self, app):
+    def on_loop(self):
         pass
     def on_message(self):
+        pass
+    def on_cleanup(self):
         pass
 
     ##

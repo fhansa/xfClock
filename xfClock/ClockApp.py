@@ -5,12 +5,12 @@
 ##  TODO: Add better logging
 ##
 import os
+import traceback
 import sys
 import datetime
 import pygame
-from pygame.locals import *
-from pygame.time import *
-from math import *
+import pygame.locals
+import math
 from threading import Thread
 
 # modules
@@ -134,28 +134,30 @@ class Clock:
         ## Add modules from config
         modules = self.config.modules
         for modItem in modules:
-            #try:
+            try:
                 mod = modItem["name"]
                 m = importlib.import_module("xfClock.modules." + mod + "." + mod)
                 modClass = getattr(m, mod)
-                modObj = modClass()
+                modObj = modClass(self)
                 modObj.modulePath = os.path.join(self._app_dir, "modules", mod)
                 if "config" in modItem:
                     modObj.config = modItem["config"]
                 if "position" in modItem:
                     modObj.rect = self.rectFromPosition(modItem["position"])
                 else:
-                    modObj.rect = (0,0)
+                    modObj.rect = ((0,0), (0,0))
                 self.modules.append(modObj)
-            #except Exception as e:
-            #    print("Error when creating module. Error:{}".format(e))
-            #    print("This error does not halt xfClock. Only the affected module is not loaded")
+            except Exception as e:
+                print("**** CREATE MODULE ERROR - THIS WILL NOT HALT THE APPLICATION ***")
+                print("Error when creating module ** {} **  . Error:{}".format(modItem["name"],e))
+                traceback.print_tb(e.__traceback__)
+                print("---")
 
     def initializeModules(self):
         ## Iterate and init all modules
         for mod in self.modules:
             try:
-                mod.on_init(self)
+                mod.on_init()
             except Exception as e:
                 print("on_init failed for {}".format(mod.__class__.__name__))
                 print("Message: {}".format(e))
@@ -201,7 +203,7 @@ class Clock:
     def on_loop(self):
         ## Modules
         for mod in self.modules:
-            mod.on_loop(self)
+            mod.on_loop()
 
     ##
     ## on_render - called when its time to draw  
@@ -215,7 +217,7 @@ class Clock:
         for mod in self.modules:
             ## Create surafce to use 
             surface = pygame.Surface(mod.size, pygame.SRCALPHA)
-            mod.on_render(self, surface)
+            mod.on_render(surface)
             self.screen.blit(surface, mod.position)
 
         ## done
@@ -224,6 +226,8 @@ class Clock:
     ##
     ## on_cleanup - is called when the fun is over and its time to quit
     def on_cleanup(self):
+        for mod in self.modules:
+            mod.on_cleanup()
         pygame.quit()
  
     ##

@@ -10,9 +10,11 @@ if __name__ == "__main__" :
     ##  - framebuffer for pitft (adafruit)
 
     if config.Config.system["display"] == "simulated":
-        ## Use dsimulated dimensions
+        ## Use simulated dimensions
+        ## This setting is primarily used to run the clock on development computer
         pass
     else:
+        ## This scenario is RaspberryPi using a pitft-screen 
         ## Framebuffer settings
         os.putenv('SDL_VIDEODRIVER', 'fbcon')
         os.putenv('SDL_FBDEV','/dev/fb1')

@@ -2,27 +2,23 @@
 #   Module for xfClock - GestureRecognizer
 #
 import xfClock.module
-from threading import Thread
+import config
 
-from apds9960 import *
-import apds9960.device
-import apds9960.const
+from threading import Thread
+import apds9960
 import smbus
+
 import paho.mqtt.publish as mqttPublish
 import paho.mqtt.client as mqttClient
 from time import sleep
 
 class Gesture(xfClock.module.moduleBase):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         #self.lastShowed
         pass
     
     def on_init(self, app):
-        # Initialize i2c
-        port = 1
-        bus = smbus.SMBus(port)
-        apds = apds9960.device.APDS9960(bus)
         self.t = Thread(target=self.worker)
         self.t.daemon = True
         self.t.start()
