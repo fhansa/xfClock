@@ -31,7 +31,10 @@ class Clock(xfClock.module.moduleBase):
         self.clockHeight = self.clockbg.get_size()[1]
         self.clockLeft = (self.width - self.clockWidth) / 2
         self.clockTop = (self.height - self.clockHeight) / 2
-        
+
+    #
+    # Draw the clock
+    #   
     def on_render(self, surface):
         ## Print background
         surface.blit(self.clockbg,(self.clockLeft,self.clockTop))

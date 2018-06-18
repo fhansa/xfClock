@@ -1,14 +1,14 @@
 #
 #   xfClock is the application for xfClock
 #
-#
+#   
 ##  TODO: Add better logging
 ##
 import os
 import traceback
 import sys
 import datetime
-import pygame
+import pygame 
 import pygame.locals
 import math
 from threading import Thread
@@ -23,38 +23,24 @@ import importlib
 class Clock:
     def __init__(self):
         self._running = True
-        self.modules = []
-        self._executedelay = 200        # ms delay in main loop. use to free upp processing time for threading 
-        self._app_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-    
-    # ----------------------------------------------------------------------
-    #   Defined properties exposed from the application
-    #   These properties can be used by modules
+        self.modules = []                           # List of modules
+        self._executedelay = 200                    # ms delay in main loop. use to free upp processing time for threading 
+        self._app_dir = os.path.dirname(__file__)   #<-- absolute dir the script is in
+        self.config = None                          # The configuration (from config.py)
+        self.width = 0                              # Screen Width
+        self.height = 0                             # Screen height
+        self.screen = None                          # Screen surface
+
+    ## ----------------------------------------------------
+    #   Properties - for ease
     #
-
-    ## Width and Height of screen
     @property
-    def width(self):
-        return self._width
-    @property
-    def height(self):
-        return self._height
-    
-    ## Reference to Screen (surface)
-    @property 
-    def screen(self):
-        return self._screen
+    def size(self):
+        return (self.width, self.height)
 
-    @property 
-    def config(self):
-        return self._config
 
-    @config.setter
-    def config(self, value):
-        self._config = value
-
-    # ----------------------------------------------------------------------
-    #   Published methodsfrom the application
+    ## ----------------------------------------------------
+    #   Published methodsf rom the application
     #   These can be used by modules
     #
     def hideModule(self, module):
@@ -129,64 +115,82 @@ class Clock:
         rect = ( (x,y), dimension )
         return rect
 
+    ##
     ## Create modules from config
+    ##
     def createModules(self):
         ## Add modules from config
         modules = self.config.modules
         for modItem in modules:
             try:
+                ## Dynamically import the module and create an instance of it
                 mod = modItem["name"]
                 m = importlib.import_module("xfClock.modules." + mod + "." + mod)
                 modClass = getattr(m, mod)
                 modObj = modClass(self)
+
+                ## Set some good to have properties
+                ## Path to module 
                 modObj.modulePath = os.path.join(self._app_dir, "modules", mod)
+                ## Module Configuration 
                 if "config" in modItem:
                     modObj.config = modItem["config"]
+                ## Module position 
                 if "position" in modItem:
                     modObj.rect = self.rectFromPosition(modItem["position"])
                 else:
                     modObj.rect = ((0,0), (0,0))
                 self.modules.append(modObj)
+
             except Exception as e:
+                ##
+                ##  Notify in case of error but don't stop Clock from running
+                ##
                 print("**** CREATE MODULE ERROR - THIS WILL NOT HALT THE APPLICATION ***")
                 print("Error when creating module ** {} **  . Error:{}".format(modItem["name"],e))
                 traceback.print_tb(e.__traceback__)
                 print("---")
 
+    ##
+    ##  Execute all modules on_init
+    ##
     def initializeModules(self):
         ## Iterate and init all modules
         for mod in self.modules:
             try:
                 mod.on_init()
             except Exception as e:
+                ##
+                ##  Notify in case of error but don't stop Clock from running
+                ##
                 print("on_init failed for {}".format(mod.__class__.__name__))
                 print("Message: {}".format(e))
 
     # ----------------------------------------------------------------------
     #   Application lifecycle
-    #
+    #       TODO: customizeable background??
 
     ## on_init - called once when initialization is done
     def on_init(self):
 
-        ## SETUP Screen, full screen and no mouse
-        ## TODO: customizeable background??
         pygame.init()
+
+        ## SETUP Screen - calculate size
         if self.config.system["display"] == "simulated":
-            self.size = self._width, self._height = self.config.system["display_width"],self.config.system["display_height"]
+            ## App is running on dev machine - create window from configuration sizes
+            self.width, self.height = self.config.system["display_width"],self.config.system["display_height"]
             displayOptions = pygame.RESIZABLE
         else:
-            ## Set size to whole screen
-            self.size = self._width, self._height = pygame.display.Info().current_w, pygame.display.Info().current_h 
+            ## App is running on pi with pitft - Set size to whole screen
+            self.width, self.height = pygame.display.Info().current_w, pygame.display.Info().current_h 
             displayOptions = pygame.FULLSCREEN
 
-        self._screen = pygame.display.set_mode( self.size, displayOptions )
+        # Create screen surface and make it black w/o mouse
+        self.screen = pygame.display.set_mode( self.size, displayOptions )
         pygame.mouse.set_visible(0)
         self.bgColor = (0,0,0)
         
-        ## Create rects in screen
-
-        ## Handle modules
+        ## Handle modules - create and initialize
         self.createModules()
         self.initializeModules()
 
@@ -198,24 +202,16 @@ class Clock:
         if event.type == pygame.QUIT:
             self._running = False
 
-    ##
     ## on_loop - "game-loop" called pretty often
     def on_loop(self):
         ## Modules
         for mod in self.modules:
             mod.on_loop()
 
-    ##
-    ## on_render - called when its time to draw  
-    ##
-    ##
+    ## on_render - called when its time to draw, render all modules  
     def on_render(self):
-        ## BACKGROUND
         self.screen.fill( self.bgColor )
-
-        ## Modules
         for mod in self.modules:
-            ## Create surafce to use 
             surface = pygame.Surface(mod.size, pygame.SRCALPHA)
             mod.on_render(surface)
             self.screen.blit(surface, mod.position)
@@ -223,7 +219,6 @@ class Clock:
         ## done
         pygame.display.flip()
 
-    ##
     ## on_cleanup - is called when the fun is over and its time to quit
     def on_cleanup(self):
         for mod in self.modules:
@@ -232,6 +227,7 @@ class Clock:
  
     ##
     ## execute - main loop of the program
+    ##
     def execute(self):
         try:
             if self.on_init() == False:

@@ -1,6 +1,13 @@
 #
 #   Module for xfClock - Calendar
 #
+#       Simple calendar - show start date and summary for the most recent events
+#       Use case: 
+#           Show next two or three appointments for the day.
+#           Show tomorrows items the evening before but today's when you 
+#           wake up in the morning.
+#
+#
 import xfClock.module
 from urllib.request import urlopen
 import icalendar
@@ -17,6 +24,8 @@ class Calendar(xfClock.module.moduleBase):
         ## Internal propertied        
         self._events = []                                   # List of event from calendar
         self._lastFetch = datetime.datetime.now()           # timestamp for last fetch
+        self.retries = 0
+        self.maxRetries = 20
 
         ## Default configurations TODO
         self._config["font"] = "fonts/roboto-condensed/RobotoCondensed-Regular.ttf"
@@ -26,9 +35,10 @@ class Calendar(xfClock.module.moduleBase):
         self._config["padding"] = 20
         self._config["fetchinterval"] = 30
         self._config["timetoswitchdate"] = "23:59"
+        self._config["url"] = ""
     
     def on_init(self):
-        ## trigger fecth of calendar
+        ## trigger initial fecth of calendar
         self.fetchCalendar()
         pass       
 
@@ -50,7 +60,10 @@ class Calendar(xfClock.module.moduleBase):
                 w, h = font.size(text)
             text = text + "..."
         return text
-
+    
+    ##
+    ##  Render the calendar
+    ##
     def on_render(self, surface):
         ## Setup font - TODO: store globally
         path = os.path.join(self.modulePath, self.config["font"])
@@ -66,7 +79,6 @@ class Calendar(xfClock.module.moduleBase):
         for idx, e in enumerate(self._events):
             if idx > maxRows: 
                 break
-
             ## Row 1 is the date
             text = self.fitText(font, e["dtstart"], maxWidth)
             tSurface = font.render(text, True, [255,255,255])
@@ -79,40 +91,46 @@ class Calendar(xfClock.module.moduleBase):
 
             ## Separator line
             pygame.draw.line(surface,(128,128,128), (x,y+rowHeight*2+5), (x + maxWidth, y+rowHeight*2+5), 1)
-
-
             y = y + rowHeight * 2 + rowHeight / 2
     
     #
     #   Get calendar into events-list
     #
     def fetchCalendar(self):
-        url = self.config["url"]
-        cal = urlopen(url).read().decode("UTF-8")
-        gcal = icalendar.Calendar.from_ical(cal)
-        self._events = []
-        for component in gcal.walk():
-            if component.name == "VEVENT":
+        try:
+            if self.retries > self.maxRetries:
+                exit
+            url = self.config["url"]
+            cal = urlopen(url).read().decode("UTF-8")
+            gcal = icalendar.Calendar.from_ical(cal)
+            self._events = []
+            for component in gcal.walk():
+                if component.name == "VEVENT":
 
-                eventdate = component.get('dtstart').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm'))
-                now = datetime.datetime.now(dateutil.tz.gettz('Sweden/Stockholm'))
-                ## If now > 18:00 then show tomorrows events otherwise show todays events.
-                if datetime.datetime.now().strftime("%H:%M") > self.config["timetoswitchdate"]:
-                    comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) + datetime.timedelta(days=1)
-                else:
-                    comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) 
-                comparedate = comparedate.astimezone(dateutil.tz.gettz('Sweden/Stockholm'))
-                if eventdate < comparedate:
-                    continue
+                    eventdate = component.get('dtstart').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm'))
+                    now = datetime.datetime.now(dateutil.tz.gettz('Sweden/Stockholm'))
+                    ## If now > 18:00 then show tomorrows events otherwise show todays events.
+                    if datetime.datetime.now().strftime("%H:%M") > self.config["timetoswitchdate"]:
+                        comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) + datetime.timedelta(days=1)
+                    else:
+                        comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) 
+                    comparedate = comparedate.astimezone(dateutil.tz.gettz('Sweden/Stockholm'))
+                    if eventdate < comparedate:
+                        continue
 
-                event = {}
-                event["summary"] = component.get('summary')
-                event["description"] = component.get('description')
-                event["location"] = component.get('location')
-                event["dtstart"] = component.get('dtstart').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm')).strftime("%d %b - %H:%M") 
-                event["dtend"] = component.get('dtend').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm')).strftime("%d %b - %H:%M") 
-                event["exdate"] = component.get('exdate')
-                event["startdate"] = component.get('dtstart').dt
-                self._events.append(event)
-        self._events = sorted(self._events, key=lambda k: k["startdate"])
-        self._lastFetch = datetime.datetime.now()
+                    event = {}
+                    event["summary"] = component.get('summary')
+                    event["description"] = component.get('description')
+                    event["location"] = component.get('location')
+                    event["dtstart"] = component.get('dtstart').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm')).strftime("%d %b - %H:%M") 
+                    event["dtend"] = component.get('dtend').dt.astimezone(dateutil.tz.gettz('Sweden/Stockholm')).strftime("%d %b - %H:%M") 
+                    event["exdate"] = component.get('exdate')
+                    event["startdate"] = component.get('dtstart').dt
+                    self._events.append(event)
+            self._events = sorted(self._events, key=lambda k: k["startdate"])
+            self._lastFetch = datetime.datetime.now()
+            self.retries = 0
+        except Exception as e:
+            print("Calendar fetch error {}".format(e))
+            self.retries = self.retries + 1
+

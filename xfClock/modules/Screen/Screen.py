@@ -19,7 +19,6 @@ class Screen(xfClock.module.moduleBase):
         self.payload_on = "on"
         self.payload_off = "off"
 
-
         # Start mqtt subscribe
         self.client = mqttClient.Client()
         self.client.on_connect = self.screenConnect

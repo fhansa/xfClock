@@ -3,18 +3,20 @@ import pygame
 #   Base of Modules in xfClock
 #
 class moduleBase:   
-    ##
-    ##  Lifecycle
-    ##
+
     def __init__(self, app):
-        self._width = 0
-        self._height = 0
+        self.x = 0
+        self.y = 0
+        self.width = 0
+        self.height = 0
         self.modulePath = ""
         self._config = {}
-
-        # Reference to main app
         self.app = app
-        pass    
+        pass  
+
+    ## ----------------------------------------------------
+    ##  Lifecycle stubs - override in subclass to implement module
+    ##  
     def on_init(self):
         pass   
     def on_render(self, surface):
@@ -26,49 +28,24 @@ class moduleBase:
     def on_cleanup(self):
         pass
 
-    ##
+    ## ----------------------------------------------------
     ##  Exposed properties
     ##
+
+    ## Module configuration
     @property   
     def config(self):
          return self._config
-
     @config.setter
     def config(self,value):
         # merge default config and new config
         # value will always overwrite
         self._config = { **self._config, **value }
-    
-    @property 
-    def width(self):
-        return self._width
-    @width.setter
-    def width(self, value):
-        self._width = value
 
-    @property 
-    def height(self):
-        return self._height
-    @height.setter
-    def height(self, value):
-        self._height = value
-
-    @property 
-    def x(self):
-        return self._x
-    @x.setter
-    def x(self, value):
-        self._x = value
-    @property 
-    def y(self):
-        return self._y
-    @y.setter
-    def y(self, value):
-        self._y = value
-
+    ## Rect for the module
     @property
     def rect(self):
-        return (self.width, self.height)
+        return ((self.x, self.y), (self.width, self.height))
     @rect.setter
     def rect(self, value):
         self.x = value[0][0]
@@ -76,23 +53,21 @@ class moduleBase:
         self.width = value[1][0]
         self.height = value[1][1]
 
+    ## Easy access to position and size
     @property
     def position(self):
         return (self.x, self.y)
-    
     @property
     def size(self):
         return (self.width, self.height)
 
 
-    ##
+    ## ----------------------------------------------------
     ##  Helpers
     ##
 
-    # Transform and keep aspect rate    
+    ## Transform image to new size but keep aspect rate    
     def aspect_scale(self, img,bx,by):
-        """ Scales 'img' to fit into box bx/by.
-        This method will retain the original image's aspect ratio """
         ix,iy = img.get_size()
         if ix > iy:
             # fit to width
