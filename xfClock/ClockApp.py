@@ -134,7 +134,7 @@ class Clock:
         ## Add modules from config
         modules = self.config.modules
         for modItem in modules:
-            try:
+            #try:
                 mod = modItem["name"]
                 m = importlib.import_module("xfClock.modules." + mod + "." + mod)
                 modClass = getattr(m, mod)
@@ -147,9 +147,9 @@ class Clock:
                 else:
                     modObj.rect = (0,0)
                 self.modules.append(modObj)
-            except Exception as e:
-                print("Error when creating module. Error:{}".format(e))
-                print("This error does not halt xfClock. Only the affected module is not loaded")
+            #except Exception as e:
+            #    print("Error when creating module. Error:{}".format(e))
+            #    print("This error does not halt xfClock. Only the affected module is not loaded")
 
     def initializeModules(self):
         ## Iterate and init all modules

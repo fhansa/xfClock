@@ -14,6 +14,7 @@ from time import sleep
 
 class Gesture(xfClock.module.moduleBase):
     def __init__(self):
+        super().__init__()
         #self.lastShowed
         pass
     
@@ -27,16 +28,6 @@ class Gesture(xfClock.module.moduleBase):
         self.t.start()
         self.gesture = ""
         pass       
-
-    def on_render(self, app):
-        #lock.aquire()
-        #try:
-        #    if self.gesture <> "":
-        #        self.lastGesture = self.gesture
-        #finally:
-        #    lock.release()
-        pass
-
 
 
     def worker(self):
@@ -63,26 +54,23 @@ class Gesture(xfClock.module.moduleBase):
         #apds.setProximityIntLowThreshold(50)
 
         # Enable Gesture
-        if apds.enableGestureSensor():
+        apds.enableGestureSensor()
+        # Forever loop
+        try:
+            while True:
+                sleep(0.25)
+                if apds.isGestureAvailable():
+                    motion = apds.readGesture()
+                    gestval = dirs.get(motion, "unknown")
+                    #lock.aquire()
+                    #try:
+                    #    self.gesture = gestval
+                    #finally:
+                    #    lock.release()
 
-            # Forever loop
-            try:
-                while True:
-                    sleep(0.25)
-                    if apds.isGestureAvailable():
-                        motion = apds.readGesture()
-                        gestval = dirs.get(motion, "unknown")
-                        #lock.aquire()
-                        #try:
-                        #    self.gesture = gestval
-                        #finally:
-                        #    lock.release()
-
-                        mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
-                        print("Gesture={}".format(dirs.get(motion, "unknown")))
+                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
+                    print("Gesture={}".format(dirs.get(motion, "unknown")))
 
 
-            finally:
-                print("Leaving Gesture")
-        else:
-            print("Cannot enable Gesture sensor")
+        finally:
+            print("Leaving Gesture")

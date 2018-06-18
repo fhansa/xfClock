@@ -38,6 +38,8 @@ def screenDisconnect(client, userdata, message, rc):
 class Screen(xfClock.module.moduleBase):
 
     def on_init(self, app):
+        super().__init__()
+
         #   Config settings
         self.payload_on = "on"
         self.payload_off = "off"
@@ -48,13 +50,13 @@ class Screen(xfClock.module.moduleBase):
         self.client.on_connect = screenConnect
         self.client.on_disconnect = screenDisconnect
         self.client.on_message = screenMessage 
-        usr = self.config["mqttusername"]
-        pwd = self.config["mqttpassword"]
-        if usr != "":
-            self.client.username_pw_set(usr, pwd)
-        host = self.config["mqtthost"]
-        port = self.config["mqttport"]
-        self.client.connect(host, port, 60)
+        #usr = self.config["mqttusername"]
+        #pwd = self.config["mqttpassword"]
+        #if usr != "":
+        self.client.username_pw_set("fhan", "194242!")
+        #host = self.config["mqtthost"]
+        #port = self.config["mqttport"]
+        self.client.connect("home", 1883, 60)
         self.client.loop_start()  
 
     ## MQTT Callbacks

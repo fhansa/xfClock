@@ -12,6 +12,7 @@ import pygame
 
 class Clock(xfClock.module.moduleBase):
     def __init__(self):
+        super().__init__()
         self.path = os.path.dirname(__file__)
         pass
 
