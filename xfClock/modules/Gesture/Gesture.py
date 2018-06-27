@@ -18,7 +18,7 @@ class Gesture(xfClock.module.moduleBase):
         #self.lastShowed
         pass
     
-    def on_init(self, app):
+    def on_init(self):
         self.t = Thread(target=self.worker)
         self.t.daemon = True
         self.t.start()
