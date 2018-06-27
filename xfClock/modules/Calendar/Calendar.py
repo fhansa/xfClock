@@ -9,6 +9,7 @@
 #
 #
 import xfClock.module
+import traceback
 from urllib.request import urlopen
 import icalendar
 import datetime
@@ -29,10 +30,10 @@ class Calendar(xfClock.module.moduleBase):
 
         ## Default configurations TODO
         self._config["font"] = "fonts/roboto-condensed/RobotoCondensed-Regular.ttf"
-        self._config["fontsize"] = 14
+        self._config["fontsize"] = 16
         self._config["maxwidth"] = "auto"
         self._config["maxrows"] = "auto"
-        self._config["padding"] = 20
+        self._config["padding"] = 12
         self._config["fetchinterval"] = 30
         self._config["timetoswitchdate"] = "23:59"
         self._config["url"] = ""
@@ -114,8 +115,8 @@ class Calendar(xfClock.module.moduleBase):
                         comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) + datetime.timedelta(days=1)
                     else:
                         comparedate = datetime.datetime(year=now.year, month=now.month, day=now.day) 
-                    comparedate = comparedate.astimezone(dateutil.tz.gettz('Sweden/Stockholm'))
-                    if eventdate < comparedate:
+
+                    if eventdate.replace(tzinfo=None) < comparedate:
                         continue
 
                     event = {}
@@ -132,5 +133,6 @@ class Calendar(xfClock.module.moduleBase):
             self.retries = 0
         except Exception as e:
             print("Calendar fetch error {}".format(e))
+            traceback.print_tb(e.__traceback__)
             self.retries = self.retries + 1
 

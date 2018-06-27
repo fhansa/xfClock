@@ -39,7 +39,7 @@ class Screen(xfClock.module.moduleBase):
         msg = message.payload.decode("UTF-8")
         if msg == self.payload_off:
             os.system("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
-        elif msg == self.payload_off:
+        elif msg == self.payload_on:
             os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
         else:
             print(message.payload)
