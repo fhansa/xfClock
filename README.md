@@ -42,6 +42,41 @@ python3 main.py
 
 ## Modules
 
+Built-in modules
+
+Clock - a simple analogue clock. 
+Options:
+	* Face
+
+Calendar - Show calendar items on Screen
+Options:
+	* ICS-url
+	* max number of items
+	*
+
+Screen - MQTT recipient to turn screen on and off:
+Options:
+	* mqttTopic
+	* payload_on
+	* payload_off
+
+Gesture Recognizer - APDS9960 gesture sensor conencted to xfClock
+Is used to control stuff using MQTT
+	* mqtt command topic
+	* gesture map
+		up 
+		down
+		left	
+		right
+
+Schematic overview of xfClock - default configuration
+
+Setup in MQTT Broker (and using NodeRed) is
+ 	Gesture Up 	-> Screen On
+	Gesture Down 	-> Screen Off
+	Gesture Left	-> Bedroom light on
+	Gesture Right	-> Bedrum light off or Set House in night mode
+
 ### Develop your own module
 
 ## xfClock using piZero and PiTFT
