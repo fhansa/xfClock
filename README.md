@@ -5,19 +5,24 @@ Concept is similar to MagicMirror but implemented using PyGame with a goal to ru
 
 *Insert picture*
 
+## Why PyGame?
+Reason for chosing pygame is to be able to keep the client as small as possible. Using MagicMirror requires a browser which adds too much overhead. Also the support for browsers on piZero is limited when it comes to supporting more ES6. 
+
+Chosing pygame makes the solution less complex but also less user friendly when it comes to extensibility (i.e. require knowledge of python and pygame)
+
 
 ## Getting Started
-To install xfClock you will need a Raspberry Pi with some kind of screen.  
+To install xfClock you will need a Raspberry Pi with some kind of screen.
+
+If your interested in a solution using PiZero and Adafruit PiTFT 3.5'' please look [[here]] for system and hardware setup.
 
 ### Prerequisites
 
 A Raspberry PI with screen.   
 I will not go throught installation of PI and/or Screen. It is up to you to fix.   
-Below is how I did it using PiZero and a Adafruit PiTFT.
 
 * Python3
 * Pygame - SDL
-*
 
 ### Installing
 
@@ -30,7 +35,13 @@ Default configuration will show an ananlogue clock with a two-liner calendar.
 
 ```
 cd xfClock
+pip install -r requirements.txt
 cp sample_config.py config.py
+```
+
+Configuration for Screen
+```
+code main.py ..... what to do????
 ```
 
 Start xfClock for testing 
@@ -39,6 +50,26 @@ python3 main.py
 ```
 
 ## Configuration
+Configuration is done in config.py (copy sample_config.py to config.py)
+
+xfClock can be extended using modules. xfCode comes with four default modules; Clock, Calendar, Screen and Gesture. In order to fully use Screen and Gesture you need a mqtt broker to handle and send mqtt messages.
+
+xfClock also have application configuration settings
+
+## App configuration
+```
+    system = {
+        "platform":"pi",       # Not used - for information only
+        "screentype":"FB"       # What kind of screen (FB = Framebuffer, X = X)
+        "fb_settings": {        # Framebuffer settings (in case of FB)
+            "SDL_VIDEODRIVER":"fbcon",
+            "SDL_FBDEV":"/dev/fb1"    
+        }
+        "display":"full_screen",  # Sets type of display (simulated, full_screen)
+        "display_width":480,    # Set width of display (when simulated)
+        "display_height":320,   # Set height of display (when simulated)
+    }
+```
 
 ## Modules
 
