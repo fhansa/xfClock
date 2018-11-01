@@ -64,7 +64,7 @@ class Gesture(xfClock.module.moduleBase):
                     #finally:
                     #    lock.release()
 
-                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
+                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="mini", port=1883, client_id="clock")
                     print("Gesture={}".format(dirs.get(motion, "unknown")))
 
 
