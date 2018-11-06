@@ -37,8 +37,8 @@ class Screen(xfClock.module.moduleBase):
         #pwd = self.config["mqttpassword"]
         #if usr != "":
         #self.client.username_pw_set(usr, pwd)
-        host = "mini" #self.config["mqtthost"]
-        port = 1883 #self.config["mqttport"]
+        host = self.config["mqtthost"]
+        port = self.config["mqttport"]
         self.client.connect(host, port, 60)
         self.publishDiscovery()
         self.client.loop_start()  
