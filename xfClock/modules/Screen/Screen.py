@@ -33,10 +33,10 @@ class Screen(xfClock.module.moduleBase):
         self.client.on_connect = self.screenConnect
         self.client.on_disconnect = self.screenDisconnect
         self.client.on_message = self.screenMessage 
-        usr = self.config["mqttusername"]
-        pwd = self.config["mqttpassword"]
+        #usr = self.config["mqttusername"]
+        #pwd = self.config["mqttpassword"]
         #if usr != "":
-        self.client.username_pw_set(usr, pwd)
+        #self.client.username_pw_set(usr, pwd)
         host = self.config["mqtthost"]
         port = self.config["mqttport"]
         self.client.connect(host, port, 60)
