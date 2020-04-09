@@ -52,11 +52,11 @@ class Clock:
     # ----------------------------------------------------------------------
     #   Application methods - internal methods
     #
-    ##  +---+---+---+
-    ##  | A | B | C |
-    ##  +---+---+---+
-    ##  | E | F | G |
-    ##  +---+---+---+
+    ##  +---+---+---+       +-----+-----+
+    ##  | A | B | C |       |     |     |
+    ##  +---+---+---+       |  H  |  I  |
+    ##  | E | F | G |       |     |     |
+    ##  +---+---+---+       +-----+-----+
     ##
     ##  Available rects:
     ##      top_left, top_middle, top_right, bottom_left, bottom_middle, bottom_right
@@ -69,6 +69,8 @@ class Clock:
     ##
     ##      top_row, bottom_row (A+B+C, E+F+G)
     ##
+    ##      left_half (H) right_half (I)
+
     ## Create rect from position 
     def rectFromPosition(self, position):
         rect = ( (0,0), (0,0) ) ## (x,y), (w,h)
@@ -82,8 +84,10 @@ class Clock:
             dimension =  (int(self.width / 3), int(self.height))
         elif position in ("big_left", "big_right"):
             dimension = (int(self.width / 3 * 2), int(self.height))
-        elif dimension in ("top_row", "bottom_row"):
+        elif position in ("top_row", "bottom_row"):
             dimension = (int(self.width), int(self.height / 2))
+        elif position in ("left_half", "right_helf"):
+            dimension = (int(self.width / 2), int(self.height))
 
         x = 0
         y = 0
@@ -98,7 +102,12 @@ class Clock:
             else:
                 y = 0
 
-            if ypos == "big":
+            if xpos == "half":
+                if ypos == "left":
+                    x = 0
+                if ypos == "right":
+                    x = (int(self.width / 2))
+            elif ypos == "big":
                 if xpos == "left":
                     x = 0
                 else:
