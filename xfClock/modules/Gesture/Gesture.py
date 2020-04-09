@@ -48,9 +48,10 @@ class Gesture(xfClock.module.moduleBase):
 
         # Settings
         #apds.setProximityIntLowThreshold(50)
-
+        print("Starting gesture sensor")
         # Enable Gesture
         apds.enableGestureSensor()
+
         # Forever loop
         try:
             while True:
@@ -58,13 +59,8 @@ class Gesture(xfClock.module.moduleBase):
                 if apds.isGestureAvailable():
                     motion = apds.readGesture()
                     gestval = dirs.get(motion, "unknown")
-                    #lock.aquire()
-                    #try:
-                    #    self.gesture = gestval
-                    #finally:
-                    #    lock.release()
+                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock")
 
-                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="mini", port=1883, client_id="clock")
                     print("Gesture={}".format(dirs.get(motion, "unknown")))
 
 
