@@ -29,7 +29,10 @@ class Config:
             "name" : "Gesture",
             "position":"hidden",
             "config": {
-
+                "mqtthost":"xxx",
+                "mqttport":1883,
+                "mqttusername":"xx",
+                "mqttpassword":"xx"
             }
         },
         {
