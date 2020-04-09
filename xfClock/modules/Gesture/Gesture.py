@@ -2,41 +2,28 @@
 #   Module for xfClock - GestureRecognizer
 #
 import xfClock.module
-from threading import Thread
+import config
 
-from apds9960 import *
-import apds9960.device
-import apds9960.const
+from threading import Thread
+import apds9960
 import smbus
+
 import paho.mqtt.publish as mqttPublish
 import paho.mqtt.client as mqttClient
 from time import sleep
 
 class Gesture(xfClock.module.moduleBase):
-    def __init__(self):
+    def __init__(self, app):
+        super().__init__(app)
         #self.lastShowed
         pass
     
-    def on_init(self, app):
-        # Initialize i2c
-        port = 1
-        bus = smbus.SMBus(port)
-        apds = apds9960.device.APDS9960(bus)
+    def on_init(self):
         self.t = Thread(target=self.worker)
         self.t.daemon = True
         self.t.start()
         self.gesture = ""
         pass       
-
-    def on_render(self, app):
-        #lock.aquire()
-        #try:
-        #    if self.gesture <> "":
-        #        self.lastGesture = self.gesture
-        #finally:
-        #    lock.release()
-        pass
-
 
 
     def worker(self):
@@ -72,14 +59,8 @@ class Gesture(xfClock.module.moduleBase):
                 if apds.isGestureAvailable():
                     motion = apds.readGesture()
                     gestval = dirs.get(motion, "unknown")
-                    print("Gesture={}".format(dirs.get(motion, "unknown")))
-                    #lock.aquire()
-                    #try:
-                    #    self.gesture = gestval
-                    #finally:
-                    #    lock.release()
+                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock")
 
-                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
                     print("Gesture={}".format(dirs.get(motion, "unknown")))
 
 
