@@ -3,18 +3,22 @@
 #
 import xfClock.module
 import config
+import xfClock.hassDevice
 
 from threading import Thread
 import apds9960
 import smbus
 
-import paho.mqtt.publish as mqttPublish
-import paho.mqtt.client as mqttClient
 from time import sleep
+
 
 class Gesture(xfClock.module.moduleBase):
     def __init__(self, app):
         super().__init__(app)
+        self.deviceUD = hassDevice("gestureud", self.config)
+        self.deviceLR = hassDevice("gesturelr", self.config)
+        self.deviceUD.setupMQTT()
+        self.deviceLR.setupMQTT()
         #self.lastShowed
         pass
     
@@ -24,7 +28,6 @@ class Gesture(xfClock.module.moduleBase):
         self.t.start()
         self.gesture = ""
         pass       
-
 
     def worker(self):
         # 
@@ -64,9 +67,21 @@ class Gesture(xfClock.module.moduleBase):
                     #finally:
                     #    lock.release()
 
-                    mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
+                    if gestval == "up":
+                        self.deviceUD.setState(False)
+                    if gestval == "down":
+                        self.deviceUD.setState(True)
+                    if gestval == "left":
+                        self.deviceLR.setState(False)
+                    if gestval == "right":
+                        self.deviceLR.setState(True)
+
+                    #mqttPublish.single("home/clock/gesture", gestval,  qos=0,hostname="home", port=1883, client_id="clock", auth={ "username":"fhan", "password":"194242!" })
                     print("Gesture={}".format(dirs.get(motion, "unknown")))
 
 
         finally:
             print("Leaving Gesture")
+
+
+
