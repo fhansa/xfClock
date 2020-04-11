@@ -13,7 +13,7 @@ if __name__ == "__main__" :
         ## Use simulated dimensions
         ## This setting is primarily used to run the clock on development computer
         pass
-    elif config.Config.system["display"] == "default":
+    elif config.Config.system["display"] == "window":
         # Same as simulated but full screen
         pass
     else:

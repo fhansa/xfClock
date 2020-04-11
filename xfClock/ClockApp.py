@@ -185,7 +185,7 @@ class Clock:
         pygame.init()
 
         ## SETUP Screen - calculate size
-        if self.config.system["display"] == "simulated":
+        if self.config.system["display"] == "window":
             ## App is running on dev machine - create window from configuration sizes
             self.width, self.height = self.config.system["display_width"],self.config.system["display_height"]
             displayOptions = pygame.RESIZABLE

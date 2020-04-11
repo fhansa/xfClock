@@ -7,7 +7,7 @@ class Config:
             "SDL_VIDEODRIVER":"fbcon",
             "SDL_FBDEV":"/dev/fb1"    
         }
-        "display":"full_screen",  # Sets type of display (simulated, full_screen)
+        "display":"default",  # Sets type of display (simulated, full_screen)
         "display_width":480,    # Set width of display (when simulated)
         "display_height":320,   # Set height of display (when simulated)
     }

@@ -18,8 +18,8 @@ class Clock(xfClock.module.moduleBase):
 
     def on_init(self):
         ## Load Clockbg
-        print(self.path)
         imgPath = os.path.join(self.path, "images/clw.png")
+        print(imgPath)
         self.clockbg = pygame.image.load(imgPath).convert_alpha()   
 
         ## If clock don't fit frame then resize
@@ -40,7 +40,7 @@ class Clock(xfClock.module.moduleBase):
         surface.blit(self.clockbg,(self.clockLeft,self.clockTop))
         ## Print clock
         now = datetime.datetime.now()
-
+        
         # X,y = center of clock
         x = self.clockLeft + self.clockWidth / 2
         y = self.clockTop + self.clockHeight / 2
