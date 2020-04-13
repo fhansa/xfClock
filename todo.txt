@@ -1,0 +1,18 @@
+ImageClock
+#
+#   MQTTs
+#     USING Light:
+#       - availability  => onLine/offLine
+#       - state         => ON/OFF for screen
+#       - effect        => Set theme
+#       - brightness    => screen brightness
+#       + web page to upload new images
+#
+
+Framework
+- MQTT to change current module (module switcher)
+
+  => Switches on/off
+    - every module is a switch
+    - when one is turned on all other os turned off
+    

@@ -9,19 +9,18 @@ if __name__ == "__main__" :
     # Set up framebuffer display for pygame
     ##  - framebuffer for pitft (adafruit)
 
-    if config.Config.system["display"] == "simulated":
-        ## Use simulated dimensions
-        ## This setting is primarily used to run the clock on development computer
+    screentype = config.Config.system["screentype"]
+    if  screentype == "win":
+        ## xfClock is running with a desktop 
         pass
-    elif config.Config.system["display"] == "window":
-        # Same as simulated but full screen
-        pass
-    else:
-        ## This scenario is RaspberryPi using a pitft-screen 
+    elif screentype == "fb":
         ## Framebuffer settings
-        os.putenv('SDL_VIDEODRIVER', 'fbcon')
-        os.putenv('SDL_FBDEV','/dev/fb1')
-        os.environ["SDL_FBDEV"] = '/dev/fb1'
+        os.putenv('SDL_VIDEODRIVER', config.Config.system["SDL_VIDEODRIVER"])
+        os.putenv('SDL_FBDEV',config.Config.system["SDL_FBDEV"])
+        os.environ["SDL_FBDEV"] = config.Config.system["SDL_FBDEV"]
+    else: 
+        # Error 
+        raise xfClock.ClockApp.ClockAppException("No valid screentype found in configuration. Please check config.py")
 
     print("*** STARTING xfClock ***")
     # Create the app

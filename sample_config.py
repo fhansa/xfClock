@@ -1,15 +1,31 @@
 class Config:
 
     system = {
-        "platform":"pi",       # Not used - for information only
-        "screentype":"FB"       # What kind of screen (FB = Framebuffer, X = X)
-        "fb_settings": {        # Framebuffer settings
+        "executedelay":200,     # Delay in loop (milliseconds)  
+        "platform":"pi",        # Not used - for information only
+        "screentype":"win",     # What kind of screen (fb = Framebuffer, win = GUI (X or windows))
+        "fb_settings": {        # Framebuffer settings (when screentype is fb)
             "SDL_VIDEODRIVER":"fbcon",
             "SDL_FBDEV":"/dev/fb1"    
+        },
+        "win_settings": {
+            "display":"window", # Sets type of display (window, full_screen)
+            "width":800,        # Set width of display (when window)
+            "height":480,       # Set height of display (when window)
+        },
+        "mqtt":false,
+        "mqttsettings": {
+            "host": home,
+            "port": 1883,
+            "user": "",
+            "password": "",
+            "modules":[],
+
+            "discoveryprefix":"test",
+            "devicename":"test",
+            "mqttprefix":"test"
+
         }
-        "display":"default",  # Sets type of display (simulated, full_screen)
-        "display_width":480,    # Set width of display (when simulated)
-        "display_height":320,   # Set height of display (when simulated)
     }
 
     clock = {

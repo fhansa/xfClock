@@ -16,6 +16,7 @@ from threading import Thread
 # modules
 import importlib 
 
+
 #
 #   Clock is the main App-CLass
 #
@@ -40,7 +41,7 @@ class Clock:
 
 
     ## ----------------------------------------------------
-    #   Published methodsf rom the application
+    #   Published methods from the application
     #   These can be used by modules
     #
     def hideModule(self, module):
@@ -179,15 +180,17 @@ class Clock:
     #   Application lifecycle
     #       TODO: customizeable background??
 
+    ##
     ## on_init - called once when initialization is done
+    ##
     def on_init(self):
 
         pygame.init()
 
         ## SETUP Screen - calculate size
-        if self.config.system["display"] == "window":
+        if self.config.system["display"]["mode"] == "window":
             ## App is running on dev machine - create window from configuration sizes
-            self.width, self.height = self.config.system["display_width"],self.config.system["display_height"]
+            self.width, self.height = self.config.system["display"]["width"],self.config.system["display"]["height"]
             displayOptions = pygame.RESIZABLE
         else:
             ## App is running on pi with pitft - Set size to whole screen
@@ -206,18 +209,24 @@ class Clock:
         ## All is ok 
         self._running = True
 
+    ##
     ## on_event - called whenever an event occurs
+    ##
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
 
+    ##
     ## on_loop - "game-loop" called pretty often
+    ##
     def on_loop(self):
         ## Modules
         for mod in self.modules:
             mod.on_loop()
 
+    ##
     ## on_render - called when its time to draw, render all modules  
+    ##
     def on_render(self):
         self.screen.fill( self.bgColor )
         for mod in self.modules:
@@ -228,7 +237,9 @@ class Clock:
         ## done
         pygame.display.flip()
 
+    ##
     ## on_cleanup - is called when the fun is over and its time to quit
+    ##
     def on_cleanup(self):
         for mod in self.modules:
             mod.on_cleanup()
@@ -250,3 +261,13 @@ class Clock:
                 pygame.time.wait(200)
         finally:
             self.on_cleanup()
+
+#
+#   Application exceptions
+#
+class ClockAppException(Exception):
+    def __init__(self, msg=None):
+        if msg is None:
+            # Set some default useful error message
+            msg = "A fatal exception occurred in xfClockApp. No further details are available"
+        super(ClockAppException, self).__init__(msg)

@@ -1,5 +1,7 @@
 config.py
 env/
+bin/
+include/
 .DS_Store
 *.code-workspace
 .vscode

@@ -19,6 +19,7 @@ class hassDevice:
         self.mqtt_prefix = self.config["mqttprefix"]
         self.availability_topic = self.mqtt_prefix + "/" + name
         self.state_topic = self.mqtt_prefix + "/" + name + "/state"
+        self.devicetype = "switch"
 
     #
     # Create client and set last will
@@ -44,7 +45,7 @@ class hassDevice:
     def publishDiscovery(self):
         # Create topic <prefix>/switch/id/config
         topic = self.config["mqtt-discoveryprefix"]
-        topic += "/switch/" 
+        topic += "/" + self.devicetype + "/" 
         topic += self.name 
         topic += "/config"
 
